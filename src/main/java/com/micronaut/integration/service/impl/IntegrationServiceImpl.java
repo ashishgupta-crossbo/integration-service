@@ -1,6 +1,7 @@
 package com.micronaut.integration.service.impl;
 
 import com.micronaut.integration.common.ErrorCode;
+import com.micronaut.integration.configuration.SabreClientConfig;
 import com.micronaut.integration.configuration.SabreServiceConfig;
 import com.micronaut.integration.configuration.WebClientConfiguration;
 import com.micronaut.integration.dto.response.availability.*;
@@ -19,15 +20,8 @@ import java.util.Arrays;
 
 @Singleton
 public class IntegrationServiceImpl implements IntegrationService {
+    private final SabreClientConfig sabreClientConfig;
 
-
-    @Inject
-    private final SabreServiceConfig sabreServiceConfig;
-
-//    @Inject
-//    private final SabreClientConfig sabreClientConfig;
-
-    @Inject
     private final WebClientConfiguration webClientConfiguration;
 
 
@@ -35,8 +29,9 @@ public class IntegrationServiceImpl implements IntegrationService {
     private String baseUrl;
     private static final Logger logger = LoggerFactory.getLogger(IntegrationServiceImpl.class.getName());
 
-    public IntegrationServiceImpl(SabreServiceConfig sabreServiceConfig, WebClientConfiguration webClientConfiguration) {
-        this.sabreServiceConfig = sabreServiceConfig;
+    @Inject
+    public IntegrationServiceImpl(SabreServiceConfig sabreServiceConfig, SabreClientConfig sabreClientConfig, WebClientConfiguration webClientConfiguration) {
+        this.sabreClientConfig = sabreClientConfig;
         this.webClientConfiguration = webClientConfiguration;
     }
 
@@ -125,7 +120,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         String encodedEndDate = URLEncoder.encode(endDate, StandardCharsets.UTF_8);
 
         // Construct the URL with encoded query parameters
-        return baseUrl + sabreServiceConfig.getAvailabilityUrl()+
+        return baseUrl + sabreClientConfig.getSabreService().getAvailabilityUrl()+
                 "?adults=" + encodedAdults +
                 "&chainId=" + encodedChainId +
                 "&primaryChannel=" + encodedPrimaryChannel +
