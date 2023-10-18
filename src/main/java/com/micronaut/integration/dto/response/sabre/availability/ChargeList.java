@@ -1,0 +1,27 @@
+package com.micronaut.integration.dto.response.sabre.availability;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.serde.annotation.Serdeable;
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Serdeable
+@Introspected
+@ToString
+
+public class ChargeList {
+    @JsonProperty("Code")
+    public String code;
+    @JsonProperty("Level")
+    public String level;
+    @JsonProperty("Name")
+    public String name;
+    @JsonProperty("Type")
+    public String type;
+    @JsonProperty("Details")
+    public Details details;
+}
