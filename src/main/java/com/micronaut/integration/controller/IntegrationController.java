@@ -2,6 +2,7 @@ package com.micronaut.integration.controller;
 import com.micronaut.integration.dto.response.BaseResponse;
 import com.micronaut.integration.dto.response.availability.AvailabilityRoomResponse;
 import com.micronaut.integration.service.IntegrationService;
+import com.micronaut.integration.validations.HotelAvailabilityValidations;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -17,8 +18,11 @@ public class IntegrationController {
     @Inject
     private final IntegrationService integrationService;
 
-    public IntegrationController(IntegrationService integrationService) {
+    private final HotelAvailabilityValidations validations;
+
+    public IntegrationController(IntegrationService integrationService, HotelAvailabilityValidations validations) {
         this.integrationService = integrationService;
+        this.validations = validations;
     }
 
     @Get("/roomAvailability")
@@ -26,6 +30,7 @@ public class IntegrationController {
                                                                                       @QueryValue String primaryChannel, @QueryValue String secondaryChannel,
                                                                                       @QueryValue int hotelId, @QueryValue int numRooms,
                                                                                       @QueryValue String startDate, @QueryValue String endDate) {
+        validations.validate(adults,chainId,primaryChannel,secondaryChannel,hotelId,numRooms,startDate,endDate);
         AvailabilityRoomResponse response = integrationService.roomAvailability(adults,chainId,primaryChannel,secondaryChannel,hotelId,numRooms,startDate,endDate);
         return HttpResponse.ok(new BaseResponse<>(response));
     }

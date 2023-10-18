@@ -4,11 +4,11 @@ import com.micronaut.integration.common.ErrorCode;
 import com.micronaut.integration.exceptions.CustomException;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.HttpClient;
-import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
+@Singleton
 public class WebClientConfiguration {
 
-    @Inject
     private final HttpClient httpClient;
 
     public WebClientConfiguration(HttpClient httpClient) {

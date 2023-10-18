@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @ConfigurationProperties("sabre.service")
-public class SabreClientConfig {
+public class ServiceClientConfig {
 
     @Inject
     private SabreServiceConfig sabreService;
