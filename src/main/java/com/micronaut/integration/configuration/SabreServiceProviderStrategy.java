@@ -1,10 +1,13 @@
 package com.micronaut.integration.configuration;
 
 import com.micronaut.integration.common.ErrorCode;
+import com.micronaut.integration.dto.request.HotelAvailabilityRequest;
 import com.micronaut.integration.dto.response.availability.*;
 import com.micronaut.integration.dto.response.sabre.availability.SabreAvailabilityRoomResponse;
-import com.micronaut.integration.exceptions.CustomException;
-import io.micronaut.context.annotation.Value;
+import com.micronaut.integration.exceptions.ClientException;
+import com.micronaut.integration.exceptions.InternalServerException;
+import com.micronaut.integration.exceptions.DownStreamException;
+import io.micronaut.http.HttpResponse;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,15 +18,16 @@ import java.util.Collections;
 
 public class SabreServiceProviderStrategy implements HotelServiceProviderStrategy{
 
-    private final ServiceClientConfig sabreClientConfig;
+    @Inject
+    private  final ServiceClientConfig sabreClientConfig;
 
-    @Value("${sabre.service.availability.baseUrl}")
-    private String baseUrl;
+ //   @Value("${sabre.service.availability.baseUrl}")
+    private final String baseUrl="https://366979b3-745c-42af-9219-bae9ae2e39d6.mock.pstmn.io/";
 
     private static final Logger logger = LoggerFactory.getLogger(SabreServiceProviderStrategy.class.getName());
 
     @Inject
-    private final WebClientConfiguration webClientConfiguration;
+    private  final WebClientConfiguration webClientConfiguration;
 
     public SabreServiceProviderStrategy(ServiceClientConfig sabreClientConfig, WebClientConfiguration webClientConfiguration) {
         this.sabreClientConfig = sabreClientConfig;
@@ -31,21 +35,23 @@ public class SabreServiceProviderStrategy implements HotelServiceProviderStrateg
     }
 
     @Override
-    public AvailabilityRoomResponse availability(int adults, long chainId, String primaryChannel, String secondaryChannel, int hotelId, int numRooms, String startDate, String endDate) {
+    public AvailabilityRoomResponse availability(HotelAvailabilityRequest hotelAvailabilityRequest ) {
         AvailabilityRoomResponse availabilityRoomResponse = null;
         try {
-            String url= encodeQueryParameters(adults,chainId,primaryChannel,secondaryChannel,hotelId,numRooms,startDate,endDate);
-            SabreAvailabilityRoomResponse response = webClientConfiguration.getHttpClient(url,SabreAvailabilityRoomResponse.class).body();
-            if (response != null) {
+            String url= encodeQueryParameters(hotelAvailabilityRequest);
+            HttpResponse<SabreAvailabilityRoomResponse> response = webClientConfiguration.getHttpClient(url, SabreAvailabilityRoomResponse.class);
+            if (response.getStatus().getCode()==200){
                 logger.info("Response is {}", response);
-                availabilityRoomResponse = setAvailabilityResponse(response);
-                if (availabilityRoomResponse == null) {
-                    throw new CustomException(ErrorCode.CUSTOM_EXCEPTION);
-                }
+                availabilityRoomResponse = setAvailabilityResponse(response.body());
+            }else {
+                throw new ClientException(ErrorCode.CLIENT_EXCEPTION);
             }
         }catch (Exception e) {
             logger.info("Getting error in roomAvailability function {}", e.getMessage());
-            throw new CustomException(ErrorCode.CUSTOM_EXCEPTION);
+            throw new InternalServerException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
+        }
+        if (availabilityRoomResponse == null) {
+            throw new DownStreamException(ErrorCode.DOWNSTREAM_EXCEPTION);
         }
         return availabilityRoomResponse;
     }
@@ -101,16 +107,15 @@ public class SabreServiceProviderStrategy implements HotelServiceProviderStrateg
                 .penaltyInclusiveTax(response.getContentLists().getPolicyList().getBookingPolicy().get(0).getDepositFee().taxInclusive).build();
     }
 
-    private String encodeQueryParameters(int adults, long chainId, String primaryChannel, String secondaryChannel, int hotelId,
-                                         int numRooms, String startDate, String endDate) {
-        String encodedAdults = URLEncoder.encode(String.valueOf(adults), StandardCharsets.UTF_8);
-        String encodedChainId = URLEncoder.encode(String.valueOf(chainId), StandardCharsets.UTF_8);
-        String encodedPrimaryChannel = URLEncoder.encode(primaryChannel, StandardCharsets.UTF_8);
-        String encodedSecondaryChannel = URLEncoder.encode(secondaryChannel, StandardCharsets.UTF_8);
-        String encodedHotelId = URLEncoder.encode(String.valueOf(hotelId), StandardCharsets.UTF_8);
-        String encodedNumRooms = URLEncoder.encode(String.valueOf(numRooms), StandardCharsets.UTF_8);
-        String encodedStartDate = URLEncoder.encode(startDate, StandardCharsets.UTF_8);
-        String encodedEndDate = URLEncoder.encode(endDate, StandardCharsets.UTF_8);
+    private String encodeQueryParameters(HotelAvailabilityRequest hotelAvailabilityRequest ) {
+        String encodedAdults = URLEncoder.encode(String.valueOf(hotelAvailabilityRequest.getAdults()), StandardCharsets.UTF_8);
+        String encodedChainId = URLEncoder.encode(String.valueOf(hotelAvailabilityRequest.getChainId()), StandardCharsets.UTF_8);
+        String encodedPrimaryChannel = URLEncoder.encode(hotelAvailabilityRequest.getPrimaryChannel(), StandardCharsets.UTF_8);
+        String encodedSecondaryChannel = URLEncoder.encode(hotelAvailabilityRequest.getSecondaryChannel(), StandardCharsets.UTF_8);
+        String encodedHotelId = URLEncoder.encode(String.valueOf(hotelAvailabilityRequest.getHotelId()), StandardCharsets.UTF_8);
+        String encodedNumRooms = URLEncoder.encode(String.valueOf(hotelAvailabilityRequest.getNumRooms()), StandardCharsets.UTF_8);
+        String encodedStartDate = URLEncoder.encode(hotelAvailabilityRequest.getStartDate(), StandardCharsets.UTF_8);
+        String encodedEndDate = URLEncoder.encode(hotelAvailabilityRequest.getEndDate(), StandardCharsets.UTF_8);
 
         return baseUrl + sabreClientConfig.getSabreService().getAvailabilityUrl()+
                 "?adults=" + encodedAdults +
@@ -121,8 +126,5 @@ public class SabreServiceProviderStrategy implements HotelServiceProviderStrateg
                 "&numRooms=" + encodedNumRooms +
                 "&startDate=" + encodedStartDate +
                 "&endDate=" + encodedEndDate;
-
     }
-
-
 }

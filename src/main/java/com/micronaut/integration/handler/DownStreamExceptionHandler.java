@@ -1,7 +1,8 @@
 package com.micronaut.integration.handler;
+
 import com.micronaut.integration.dto.response.ApiError;
 import com.micronaut.integration.dto.response.BaseResponse;
-import com.micronaut.integration.exceptions.CustomException;
+import com.micronaut.integration.exceptions.DownStreamException;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -11,12 +12,11 @@ import jakarta.inject.Singleton;
 
 @Produces
 @Singleton
-@Requires(classes = { CustomException.class, ExceptionHandler.class })
-public class InternalServerErrorHandler implements ExceptionHandler<CustomException, HttpResponse<BaseResponse<String>>> {
-
+@Requires(classes = { DownStreamException.class, ExceptionHandler.class })
+public class DownStreamExceptionHandler implements ExceptionHandler<DownStreamException, HttpResponse<BaseResponse<String>>> {
     @Override
-    public HttpResponse<BaseResponse<String>> handle(HttpRequest request, CustomException exception) {
-        ApiError apiError = new ApiError(1001, "Something went wrong. Please try again in sometime.");
+    public HttpResponse<BaseResponse<String>> handle(HttpRequest request, DownStreamException exception) {
+        ApiError apiError = new ApiError(1001, "Getting null sabre response");
         return HttpResponse.badRequest(new BaseResponse<>(false, null, apiError));
     }
 }

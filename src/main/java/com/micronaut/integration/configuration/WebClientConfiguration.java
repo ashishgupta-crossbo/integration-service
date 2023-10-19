@@ -1,7 +1,7 @@
 package com.micronaut.integration.configuration;
 
 import com.micronaut.integration.common.ErrorCode;
-import com.micronaut.integration.exceptions.CustomException;
+import com.micronaut.integration.exceptions.InternalServerException;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.HttpClient;
 import jakarta.inject.Singleton;
@@ -19,8 +19,7 @@ public class WebClientConfiguration {
         try {
             return httpClient.toBlocking().exchange(url, responseType);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.CUSTOM_EXCEPTION);
+            throw new InternalServerException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
         }
     }
-
 }

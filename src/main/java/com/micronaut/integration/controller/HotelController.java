@@ -1,4 +1,5 @@
 package com.micronaut.integration.controller;
+import com.micronaut.integration.dto.request.HotelAvailabilityRequest;
 import com.micronaut.integration.dto.response.BaseResponse;
 import com.micronaut.integration.dto.response.availability.AvailabilityRoomResponse;
 import com.micronaut.integration.service.HotelService;
@@ -26,12 +27,13 @@ public class HotelController {
     }
 
     @Get("/roomAvailability")
-    public HttpResponse<BaseResponse<AvailabilityRoomResponse>> roomAvailability(@QueryValue int adults, @QueryValue long chainId,
+    public HttpResponse<BaseResponse<AvailabilityRoomResponse>> roomAvailability(@QueryValue int adults, @QueryValue Long chainId,
                                                                                       @QueryValue String primaryChannel, @QueryValue String secondaryChannel,
-                                                                                      @QueryValue int hotelId, @QueryValue int numRooms,
+                                                                                      @QueryValue String hotelId, @QueryValue int numRooms,
                                                                                       @QueryValue String startDate, @QueryValue String endDate) {
-        validations.validate(adults,chainId,primaryChannel,secondaryChannel,hotelId,numRooms,startDate,endDate);
-        AvailabilityRoomResponse response = integrationService.roomAvailability(adults,chainId,primaryChannel,secondaryChannel,hotelId,numRooms,startDate,endDate);
+     HotelAvailabilityRequest hotelAvailabilityRequest = HotelAvailabilityRequest.builder().adults(adults).chainId(chainId).primaryChannel(primaryChannel).secondaryChannel(secondaryChannel).hotelId(hotelId).numRooms(numRooms).startDate(startDate).endDate(endDate).build();
+     validations.validateHotelAvailabilityRequest(hotelAvailabilityRequest);
+     AvailabilityRoomResponse response = integrationService.roomAvailability(hotelAvailabilityRequest);
         return HttpResponse.ok(new BaseResponse<>(response));
     }
 

@@ -1,17 +1,21 @@
 package com.micronaut.integration.validations;
 
 import com.micronaut.integration.common.ErrorCode;
-import com.micronaut.integration.exceptions.CustomException;
+import com.micronaut.integration.dto.request.HotelAvailabilityRequest;
+import com.micronaut.integration.exceptions.InvalidRequestException;
+import io.micronaut.core.util.StringUtils;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class HotelAvailabilityValidations {
 
-    public void validate( int adults, long chainId, String primaryChannel, String secondaryChannel, int hotelId, int numRooms, String startDate, String endDate) {
+    public void validateHotelAvailabilityRequest(HotelAvailabilityRequest hotelAvailabilityRequest) {
 
-        if (adults==0 || chainId==0 || hotelId==0 || numRooms==0 || primaryChannel.isEmpty() || secondaryChannel.isEmpty() ||
-                startDate.isEmpty() || endDate.isEmpty()){
-            throw new CustomException(ErrorCode.CUSTOM_EXCEPTION);
+        if (hotelAvailabilityRequest.getAdults()==0 || hotelAvailabilityRequest.getChainId()==0 || StringUtils.isEmpty( hotelAvailabilityRequest.getHotelId())||
+                hotelAvailabilityRequest.getNumRooms()==0 || StringUtils.isEmpty( hotelAvailabilityRequest.getPrimaryChannel()) ||
+                StringUtils.isEmpty( hotelAvailabilityRequest.getSecondaryChannel()) ||
+                StringUtils.isEmpty( hotelAvailabilityRequest.getStartDate()) ||StringUtils.isEmpty( hotelAvailabilityRequest.getEndDate())){
+            throw new InvalidRequestException(ErrorCode.INVALID_REQUEST);
         }
     }
 }
