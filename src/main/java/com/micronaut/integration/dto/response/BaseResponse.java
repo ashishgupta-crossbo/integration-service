@@ -23,12 +23,6 @@ public class BaseResponse<T> {
         this.data = data;
         this.error = error;
     }
-    public BaseResponse() {
-        this.success = true;
-        this.data = null;
-        this.error = null;
-    }
-
     public BaseResponse(T response) {
         this.success = true;
         this.data = response;

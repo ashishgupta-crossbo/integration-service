@@ -1,7 +1,7 @@
 package com.micronaut.integration.controller;
 import com.micronaut.integration.dto.response.BaseResponse;
 import com.micronaut.integration.dto.response.availability.AvailabilityRoomResponse;
-import com.micronaut.integration.service.IntegrationService;
+import com.micronaut.integration.service.HotelService;
 import com.micronaut.integration.validations.HotelAvailabilityValidations;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
@@ -13,14 +13,14 @@ import jakarta.inject.Inject;
 
 @Controller("/integration")
 @ExecuteOn(TaskExecutors.IO)
-public class IntegrationController {
+public class HotelController {
 
     @Inject
-    private final IntegrationService integrationService;
+    private final HotelService integrationService;
 
     private final HotelAvailabilityValidations validations;
 
-    public IntegrationController(IntegrationService integrationService, HotelAvailabilityValidations validations) {
+    public HotelController(HotelService integrationService, HotelAvailabilityValidations validations) {
         this.integrationService = integrationService;
         this.validations = validations;
     }

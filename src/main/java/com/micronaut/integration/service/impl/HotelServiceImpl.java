@@ -5,15 +5,15 @@ import com.micronaut.integration.common.HotelServiceEnums;
 import com.micronaut.integration.configuration.HotelServiceProviderStrategy;
 import com.micronaut.integration.dto.response.availability.*;
 import com.micronaut.integration.exceptions.CustomException;
-import com.micronaut.integration.service.IntegrationService;
+import com.micronaut.integration.service.HotelService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class IntegrationServiceImpl implements IntegrationService {
-    private static final Logger logger = LoggerFactory.getLogger(IntegrationServiceImpl.class.getName());
+public class HotelServiceImpl implements HotelService {
+    private static final Logger logger = LoggerFactory.getLogger(HotelServiceImpl.class.getName());
 
     @Inject
     private  HotelServiceProviderStrategy hotelServiceProviderStrategy;

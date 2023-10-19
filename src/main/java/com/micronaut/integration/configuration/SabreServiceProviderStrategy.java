@@ -8,7 +8,6 @@ import io.micronaut.context.annotation.Value;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class SabreServiceProviderStrategy implements HotelServiceProviderStrateg
         AvailabilityRoomResponse availabilityRoomResponse = null;
         try {
             String url= encodeQueryParameters(adults,chainId,primaryChannel,secondaryChannel,hotelId,numRooms,startDate,endDate);
-            SabreAvailabilityRoomResponse response =webClientConfiguration.getHttpClient(url,SabreAvailabilityRoomResponse.class).body();
+            SabreAvailabilityRoomResponse response = webClientConfiguration.getHttpClient(url,SabreAvailabilityRoomResponse.class).body();
             if (response != null) {
                 logger.info("Response is {}", response);
                 availabilityRoomResponse = setAvailabilityResponse(response);
@@ -68,7 +67,7 @@ public class SabreServiceProviderStrategy implements HotelServiceProviderStrateg
                         rateList.get(0).getPackageList().get(0).getDescription()).build())).build();
 
         CancellationPolicy cancellationPolicy = getCancellationPolicy(response);
-        availablePlanData.setCancellationPolicy(cancellationPolicy);
+         availablePlanData.setCancellationPolicy(cancellationPolicy);
 
         GuaranteePolicy guaranteePolicy= GuaranteePolicy.builder().policyCode(response.contentLists.getPolicyList().getBookingPolicy().get(0).getCode()).guaranteeAmount(344).policyText(response.getContentLists().getPolicyList().getBookingPolicy().get(0).getDescription())
                 .currencyCode(response.getContentLists().getCurrencyList().get(0).getCurrencyCode()).build();
@@ -78,7 +77,7 @@ public class SabreServiceProviderStrategy implements HotelServiceProviderStrateg
         Taxis.builder().amount(response.productAvailability.additionalPrices.get(0).getPerGuest().get(0).getPrice().getTotal().getAmount())
                 .taxName(response.productAvailability.getPrices().get(0).getProduct().getPrices().getTotal().getPrice().getTax().getBreakDown().get(0).getCode())
                 .otaTaxCode(response.productAvailability.getPrices().get(0).getProduct().getPrices().getTotal().getPrice().getTax().getBreakDown().get(0).getCode())
-                .chargeFrequency(123)// need to be discussed
+                .chargeFrequency(123)  // need to be discussed
                 .date(response.getContentLists().getPolicyList().getBookingPolicy().get(0).getDepositFee().getDueTime())
                 .build();
         availablePlanData.setNightlyRates(new ArrayList<>());
@@ -113,7 +112,6 @@ public class SabreServiceProviderStrategy implements HotelServiceProviderStrateg
         String encodedStartDate = URLEncoder.encode(startDate, StandardCharsets.UTF_8);
         String encodedEndDate = URLEncoder.encode(endDate, StandardCharsets.UTF_8);
 
-        // Construct the URL with encoded query parameters
         return baseUrl + sabreClientConfig.getSabreService().getAvailabilityUrl()+
                 "?adults=" + encodedAdults +
                 "&chainId=" + encodedChainId +
